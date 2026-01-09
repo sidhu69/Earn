@@ -272,6 +272,64 @@ async def list_groups(event):
             msg += f'`{gid}` — (Title unavailable)\n'
     await event.reply(msg)
 
+# === AUTO-REPLY TO USERS FROM MUTUAL GROUPS (ONE-TIME) ===
+
+auto_reply_text = "https://t.me/+6yqL9Yx2NZFmNmU1\nJoin"
+replied_users_file = "auto_replied_users.json"
+
+# Load replied users
+if os.path.exists(replied_users_file):
+    with open(replied_users_file, "r") as f:
+        replied_users = set(json.load(f))
+else:
+    replied_users = set()
+
+@client.on(events.NewMessage(incoming=True))
+async def mutual_group_auto_reply(event):
+    if not event.is_private:
+        return
+
+    sender = await event.get_sender()
+
+    # Ignore bots or self
+    if sender.bot or sender.id == (await client.get_me()).id:
+        return
+
+    # Ignore if already replied
+    if str(sender.id) in replied_users:
+        return
+
+    try:
+        # Check mutual groups
+        dialogs = await client.get_dialogs()
+        mutual_found = False
+
+        for dialog in dialogs:
+            if dialog.is_group or dialog.is_channel:
+                try:
+                    participant = await client.get_participant(dialog.entity, sender.id)
+                    if participant:
+                        mutual_found = True
+                        break
+                except:
+                    continue
+
+        if not mutual_found:
+            return
+
+        # Send auto-reply
+        await event.reply(auto_reply_text)
+
+        # Save replied user
+        replied_users.add(str(sender.id))
+        with open(replied_users_file, "w") as f:
+            json.dump(list(replied_users), f)
+
+        print(f"🤖 Auto-replied to user {sender.id}")
+
+    except Exception as e:
+        print(f"Auto-reply error: {e}")
+
 # === Start the bot ===
 async def main():
     await client.start()
