@@ -274,6 +274,8 @@ async def list_groups(event):
 
 # === AUTO-REPLY TO USERS FROM MUTUAL GROUPS (ONE-TIME) ===
 
+from telethon.tl.functions.messages import GetCommonChatsRequest
+
 auto_reply_text = "https://t.me/+6yqL9Yx2NZFmNmU1\nJoin"
 replied_users_file = "auto_replied_users.json"
 
@@ -292,30 +294,24 @@ async def mutual_group_auto_reply(event):
     sender = await event.get_sender()
 
     # Ignore bots or self
-    if sender.bot or sender.id == (await client.get_me()).id:
+    me = await client.get_me()
+    if sender.bot or sender.id == me.id:
         return
 
-    # Ignore if already replied
+    # Ignore already replied users
     if str(sender.id) in replied_users:
         return
 
     try:
-        # Check mutual groups
-        dialogs = await client.get_dialogs()
-        mutual_found = False
+        # Get mutual groups
+        common = await client(GetCommonChatsRequest(
+            user_id=sender.id,
+            max_id=0,
+            limit=5
+        ))
 
-        for dialog in dialogs:
-            if dialog.is_group or dialog.is_channel:
-                try:
-                    participant = await client.get_participant(dialog.entity, sender.id)
-                    if participant:
-                        mutual_found = True
-                        break
-                except:
-                    continue
-
-        if not mutual_found:
-            return
+        if not common.chats:
+            return  # no mutual groups
 
         # Send auto-reply
         await event.reply(auto_reply_text)
@@ -325,11 +321,10 @@ async def mutual_group_auto_reply(event):
         with open(replied_users_file, "w") as f:
             json.dump(list(replied_users), f)
 
-        print(f"🤖 Auto-replied to user {sender.id}")
+        print(f"🤖 Auto-replied to {sender.id}")
 
     except Exception as e:
         print(f"Auto-reply error: {e}")
-
 # === Start the bot ===
 async def main():
     await client.start()
