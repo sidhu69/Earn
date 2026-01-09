@@ -272,7 +272,7 @@ async def list_groups(event):
             msg += f'`{gid}` — (Title unavailable)\n'
     await event.reply(msg)
 
-# === AUTO-REPLY TO USERS FROM MUTUAL GROUPS (ONE-TIME) ===
+# === AUTO-REPLY TO USERS FROM MUTUAL GROUPS (ONE-TIME, NEW CHAT ONLY) ===
 
 from telethon.tl.functions.messages import GetCommonChatsRequest
 
@@ -292,18 +292,26 @@ async def mutual_group_auto_reply(event):
         return
 
     sender = await event.get_sender()
-
-    # Ignore bots or self
     me = await client.get_me()
+
+    # Ignore self or bots
     if sender.bot or sender.id == me.id:
         return
 
-    # Ignore already replied users
+    # ❌ Do NOT reply to saved contacts
+    if sender.contact:
+        return
+
+    # ❌ Only reply on FIRST MESSAGE (new chat)
+    if event.message.id != 1:
+        return
+
+    # ❌ Already replied before
     if str(sender.id) in replied_users:
         return
 
     try:
-        # Get mutual groups
+        # ✅ Check mutual groups
         common = await client(GetCommonChatsRequest(
             user_id=sender.id,
             max_id=0,
@@ -313,15 +321,15 @@ async def mutual_group_auto_reply(event):
         if not common.chats:
             return  # no mutual groups
 
-        # Send auto-reply
+        # ✅ Send auto-reply
         await event.reply(auto_reply_text)
 
-        # Save replied user
+        # ✅ Save user as replied
         replied_users.add(str(sender.id))
         with open(replied_users_file, "w") as f:
             json.dump(list(replied_users), f)
 
-        print(f"🤖 Auto-replied to {sender.id}")
+        print(f"🤖 Auto-replied ONCE to new chat user {sender.id}")
 
     except Exception as e:
         print(f"Auto-reply error: {e}")
