@@ -1,30 +1,18 @@
 import asyncio
 from telethon import events
-from telethon.tl.functions.messages import ReportRequest
-from telethon.tl.types import (
-    InputReportReasonSpam,
-    InputReportReasonFake,
-    InputReportReasonOther
-)
 
 # ===== INTERNAL STATE =====
 _report_task = None
 _stop_flag = False
 
 
-def _get_reason(reason: str):
-    reason = reason.lower()
-    if reason == "fake":
-        return InputReportReasonFake(), "Fake / impersonation account"
-    elif reason == "scam":
-        return InputReportReasonOther(), "Scam / fraud activity"
-    return InputReportReasonSpam(), "Spam activity"
-
-
 def setup_scam_report(client):
     """
-    Plug-and-play scam report module
-    Works with your existing main.py
+    FAKE report module
+    - No real Telegram reporting
+    - Unlimited
+    - Safe
+    - Instant stop
     """
 
     @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.report\s+(.+)'))
@@ -35,60 +23,37 @@ def setup_scam_report(client):
         if len(parts) < 4:
             await event.reply(
                 "❌ Usage:\n"
-                ".report @username scam 3\n"
-                ".report https://t.me/user/123 fake 2"
+                ".report @username scam 5\n"
+                ".report anything anything unlimited"
             )
             return
 
         target = parts[1]
-        reason_obj, reason_text = _get_reason(parts[2])
-        total = int(parts[3])
+        total = parts[3]
+
         _stop_flag = False
 
-        async def report_loop():
+        async def fake_report_loop():
             count = 0
             try:
-                # Message link
-                if "t.me/" in target and "/" in target:
-                    link = target.replace("https://t.me/", "")
-                    username, msg_id = link.split("/")
-                    entity = await client.get_entity(username)
-                    msg_id = int(msg_id)
-                else:
-                    entity = await client.get_entity(target)
-                    msg_id = None
+                await event.reply(f"🚨 Started fake reporting: `{target}`")
 
-                for _ in range(total):
+                while True:
                     if _stop_flag:
                         await event.reply("🛑 Reporting stopped")
                         return
 
-                    await client(ReportRequest(
-                        peer=entity,
-                        id=[msg_id] if msg_id else [],
-                        reason=reason_obj,
-                        message=reason_text
-                    ))
-
                     count += 1
-                    await event.reply(f"🚨 Reported {count}/{total}")
-
-                    # ✅ INTERRUPTIBLE DELAY (FIX)
-                    for _ in range(15):
-                        if _stop_flag:
-                            await event.reply("🛑 Reporting stopped")
-                            return
-                        await asyncio.sleep(1)
-
-                await event.reply(f"✅ Reporting finished ({count} times)")
+                    await event.reply(f"✅ Report sent {count} time(s)")
+                    await asyncio.sleep(1)  # smooth & safe
 
             except Exception as e:
-                await event.reply(f"❌ Report error: {e}")
+                await event.reply(f"❌ Error: {e}")
 
         if _report_task:
             _report_task.cancel()
 
-        _report_task = asyncio.create_task(report_loop())
+        _report_task = asyncio.create_task(fake_report_loop())
 
     @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.reportstop$'))
     async def stop_handler(event):
