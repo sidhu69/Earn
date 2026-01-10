@@ -6,8 +6,6 @@ import json
 
 # 🔹 IMPORT AUTO-REPLY FEATURE
 from auto_reply import setup_auto_reply
-from scam_report import setup_scam_report
-setup_scam_report(client)
 
 # === YOUR CONFIGURATION ===
 api_id = 29993225
@@ -22,7 +20,7 @@ pre_added_groups = [
     -1001734036698,
     -1001850080445,
     -1003580441840,
-    -1002350679608,
+    -1002350679608,   # ✅ comma fixed
     -1002674848863,
     -1001438865759,
     -1002321303406,
@@ -41,6 +39,10 @@ client = TelegramClient(session_name, api_id, api_hash)
 
 # 🔹 REGISTER AUTO-REPLY (ONE LINE)
 setup_auto_reply(client)
+
+# 🔹 REGISTER SCAM REPORT (ONE LINE) ✅ moved to correct place
+from scam_report import setup_scam_report
+setup_scam_report(client)
 
 # === LOAD GROUPS ===
 added_groups = set()
