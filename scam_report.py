@@ -24,7 +24,7 @@ def _get_reason(reason: str):
 def setup_scam_report(client):
     """
     Plug-and-play scam report module
-    No main.py logic changes required
+    Works with your existing main.py
     """
 
     @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.report\s+(.+)'))
@@ -48,7 +48,7 @@ def setup_scam_report(client):
         async def report_loop():
             count = 0
             try:
-                # message link
+                # Message link
                 if "t.me/" in target and "/" in target:
                     link = target.replace("https://t.me/", "")
                     username, msg_id = link.split("/")
@@ -60,7 +60,8 @@ def setup_scam_report(client):
 
                 for _ in range(total):
                     if _stop_flag:
-                        break
+                        await event.reply("🛑 Reporting stopped")
+                        return
 
                     await client(ReportRequest(
                         peer=entity,
@@ -71,10 +72,15 @@ def setup_scam_report(client):
 
                     count += 1
                     await event.reply(f"🚨 Reported {count}/{total}")
-                    await asyncio.sleep(15)  # SAFE DELAY
 
-                if not _stop_flag:
-                    await event.reply(f"✅ Reporting finished ({count} times)")
+                    # ✅ INTERRUPTIBLE DELAY (FIX)
+                    for _ in range(15):
+                        if _stop_flag:
+                            await event.reply("🛑 Reporting stopped")
+                            return
+                        await asyncio.sleep(1)
+
+                await event.reply(f"✅ Reporting finished ({count} times)")
 
             except Exception as e:
                 await event.reply(f"❌ Report error: {e}")
