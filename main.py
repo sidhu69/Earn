@@ -6,6 +6,8 @@ import json
 
 # 🔹 IMPORT AUTO-REPLY FEATURE
 from auto_reply import setup_auto_reply
+from scam_report import setup_scam_report
+setup_scam_report(client)
 
 # === YOUR CONFIGURATION ===
 api_id = 29993225
