@@ -5,7 +5,7 @@ from telethon.tl.functions.messages import GetCommonChatsRequest
 
 def setup_auto_reply(client):
 
-    AUTO_REPLY_TEXT = "https://t.me/+6yqL9Yx2NZFmNmU1\nJoin"
+    AUTO_REPLY_TEXT = "https://t.me/+yjt6k4MxcmxiOTU1\nJoin"
     FILE = "auto_replied_users.json"
 
     if os.path.exists(FILE):
