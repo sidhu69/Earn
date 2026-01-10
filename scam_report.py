@@ -3,8 +3,8 @@ from telethon import events
 from telethon.tl.functions.messages import ReportRequest
 from telethon.tl.types import (
     InputReportReasonSpam,
-    InputReportReasonScam,
-    InputReportReasonFake
+    InputReportReasonFake,
+    InputReportReasonOther
 )
 
 # ===== INTERNAL STATE =====
@@ -14,24 +14,21 @@ _stop_flag = False
 
 def _get_reason(reason: str):
     reason = reason.lower()
-    if reason == "scam":
-        return InputReportReasonScam()
-    elif reason == "fake":
-        return InputReportReasonFake()
-    return InputReportReasonSpam()
+    if reason == "fake":
+        return InputReportReasonFake(), "Fake / impersonation account"
+    elif reason == "scam":
+        return InputReportReasonOther(), "Scam / fraud activity"
+    return InputReportReasonSpam(), "Spam activity"
 
 
 def setup_scam_report(client):
     """
-    Call this ONCE from main.py
-    Example:
-        from scam_report import setup_scam_report
-        setup_scam_report(client)
+    Plug-and-play scam report module
+    No main.py logic changes required
     """
 
     @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.report\s+(.+)'))
     async def report_handler(event):
-        nonlocal client
         global _report_task, _stop_flag
 
         parts = event.text.split()
@@ -39,19 +36,19 @@ def setup_scam_report(client):
             await event.reply(
                 "❌ Usage:\n"
                 ".report @username scam 3\n"
-                ".report https://t.me/user/123 scam 2"
+                ".report https://t.me/user/123 fake 2"
             )
             return
 
         target = parts[1]
-        reason = _get_reason(parts[2])
+        reason_obj, reason_text = _get_reason(parts[2])
         total = int(parts[3])
         _stop_flag = False
 
         async def report_loop():
             count = 0
             try:
-                # Message link
+                # message link
                 if "t.me/" in target and "/" in target:
                     link = target.replace("https://t.me/", "")
                     username, msg_id = link.split("/")
@@ -68,8 +65,8 @@ def setup_scam_report(client):
                     await client(ReportRequest(
                         peer=entity,
                         id=[msg_id] if msg_id else [],
-                        reason=reason,
-                        message="Scam / Fraud activity"
+                        reason=reason_obj,
+                        message=reason_text
                     ))
 
                     count += 1
