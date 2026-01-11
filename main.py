@@ -4,7 +4,7 @@ import os
 import asyncio
 import json
 
-🔹 IMPORT AUTO-REPLY FEATURE
+#IMPORT AUTO-REPLY FEATURE
 
 from auto_reply import setup_auto_reply
 from gcsid import setup_gcsid
