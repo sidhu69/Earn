@@ -43,16 +43,16 @@ pre_added_groups = [
 groups_file = 'added_groups.json'
 client = TelegramClient(session_name, api_id, api_hash)
 
-🔹 REGISTER AUTO-REPLY (ONE LINE)
+#REGISTER AUTO-REPLY (ONE LINE)
 
 setup_auto_reply(client)
 
-🔹 REGISTER SCAM REPORT (ONE LINE) ✅ moved to correct place
+# REGISTER SCAM REPORT (ONE LINE) ✅ moved to correct place
 
 from scam_report import setup_scam_report
 setup_scam_report(client)
 
-🔹 REGISTER GCSID (ONE LINE)
+#REGISTER GCSID (ONE LINE)
 
 setup_gcsid(client)
 
