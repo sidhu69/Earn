@@ -6,7 +6,8 @@ import json
 
 # 🔹 IMPORT AUTO-REPLY FEATURE
 from auto_reply import setup_auto_reply
-
+from gcsid import setup_gcsid
+setup_gcsid(client)
 # === YOUR CONFIGURATION ===
 api_id = 29993225
 api_hash = 'ab74aa76c3851434141419a302028976'
