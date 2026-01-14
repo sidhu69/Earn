@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantRequest, LeaveChannelRequest
-from telethon.tl.types import ChannelParticipantBanned, ChannelParticipantRestricted
+from telethon.tl.types import ChannelParticipantBanned
 
 import re
 import os
