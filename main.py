@@ -248,7 +248,6 @@ async def save_all(event):
     await event.reply(f"✅ Saved {count} files")
 
 # === .mremove ===
-# === .mremove ===
 @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.mremove$'))
 async def mremove_handler(event):
     await event.reply("🔍 Checking muted / read-only groups...")
