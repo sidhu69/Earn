@@ -267,9 +267,9 @@ async def mremove_handler(event):
             ))
 
             p = participant.participant
-            if isinstance(p, (ChannelParticipantBanned, ChannelParticipantRestricted)):
-                if getattr(p, 'send_messages', True) is False:
-                    await client(LeaveChannelRequest(dialog.entity))
+            if isinstance(p, ChannelParticipantBanned):
+    if p.banned_rights and not p.banned_rights.send_messages:
+        await client(LeaveChannelRequest(dialog.entity))
                     left += 1
                     await asyncio.sleep(0.5)
 
