@@ -115,14 +115,9 @@ pre_added_groups = [
 groups_file = 'added_groups.json'
 client = TelegramClient(session_name, api_id, api_hash)
 
-# REGISTER AUTO-REPLY
+# REGISTER FEATURES
 setup_auto_reply(client)
-
-# REGISTER SCAM REPORT
-from scam_report import setup_scam_report
 setup_scam_report(client)
-
-# REGISTER GCSID
 setup_gcsid(client)
 
 # === LOAD GROUPS ===
@@ -252,10 +247,45 @@ async def save_all(event):
 
     await event.reply(f"✅ Saved {count} files")
 
+# === .mremove ===
+@client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.mremove$'))
+async def mremove_handler(event):
+    await event.reply("🔍 Checking muted / read-only groups...")
+
+    checked = 0
+    left = 0
+
+    async for dialog in client.iter_dialogs():
+        if not dialog.is_group and not dialog.is_channel:
+            continue
+
+        checked += 1
+        try:
+            participant = await client(GetParticipantRequest(
+                channel=dialog.entity,
+                participant='me'
+            ))
+
+            p = participant.participant
+            if isinstance(p, (ChannelParticipantBanned, ChannelParticipantRestricted)):
+                if getattr(p, 'send_messages', True) is False:
+                    await client(LeaveChannelRequest(dialog.entity))
+                    left += 1
+                    await asyncio.sleep(0.5)
+
+        except Exception:
+            continue
+
+    await event.reply(
+        f"✅ M-Remove Done\n"
+        f"Checked: {checked}\n"
+        f"Left muted: {left}"
+    )
+
 # === START ===
 async def main():
     await client.start()
-    print("🚀 Userbot running with auto-reply + gcsid")
+    print("🚀 Userbot running with auto-reply + gcsid + mremove")
     await client.run_until_disconnected()
 
 with client:
