@@ -1,12 +1,16 @@
 from telethon import TelegramClient, events
+from telethon.tl.functions.channels import GetParticipantRequest, LeaveChannelRequest
+from telethon.tl.types import ChannelParticipantBanned, ChannelParticipantRestricted
+
 import re
 import os
 import asyncio
 import json
 
-# IMPORT AUTO-REPLY FEATURE
+# IMPORT FEATURES
 from auto_reply import setup_auto_reply
 from gcsid import setup_gcsid
+from scam_report import setup_scam_report
 
 # === YOUR CONFIGURATION ===
 api_id = 29993225
