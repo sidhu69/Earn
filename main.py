@@ -80,26 +80,26 @@ link_pattern = re.compile(
 )
 
 # === .add ===
-@client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.add\s+(.+)'))
-async def add_group(event):
-    target = event.pattern_match.group(1)
-    entity = await client.get_entity(target)
-    added_groups.add(entity.id)
-    with open(groups_file, 'w') as f:
-        json.dump(list(added_groups), f)
-    await event.reply(f"✅ Added {entity.title}")
+#@client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.add\s+(.+)'))
+#async def add_group(event):
+  #  target = event.pattern_match.group(1)
+  #  entity = await client.get_entity(target)
+ #   added_groups.add(entity.id)
+ #   with open(groups_file, 'w') as f:
+#        json.dump(list(added_groups), f)
+#    await event.reply(f"✅ Added {entity.title}")
 
 # === .list ===
-@client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.list$'))
-async def list_groups(event):
-    msg = f"Groups ({len(added_groups)}):\n\n"
-    for gid in added_groups:
-        try:
-            ent = await client.get_entity(gid)
-            msg += f"{gid} — {ent.title}\n"
-        except Exception:
-            msg += f"{gid} — Unknown\n"
-    await event.reply(msg)
+#@client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.list$'))
+#₹async def list_groups(event):
+#    msg = f"Groups ({len(added_groups)}):\n\n"
+#    for gid in added_groups:
+#        try:
+#            ent = await client.get_entity(gid)
+#            msg += f"{gid} — {ent.title}\n"
+#        except Exception:
+#            msg += f"{gid} — Unknown\n"
+ #   await event.reply(msg)
 
 # === .text ===
 @client.on(events.NewMessage(outgoing=True, chats='me', pattern=r'^\.text\s+(.+)'))
