@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import GetParticipantRequest, LeaveChannelRequest
 from telethon.tl.types import ChannelParticipantBanned
+from telethon.errors import FloodWaitError
 
 import re
 import os
