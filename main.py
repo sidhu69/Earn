@@ -14,8 +14,8 @@ from gcsid import setup_gcsid
 from scam_report import setup_scam_report
 
 # === YOUR CONFIGURATION ===
-api_id = 32887228
-api_hash = 'ee517b7c04a76a65a4e659637b1026be'
+api_id = 22071176
+api_hash = '7ed5401b625a0a4d3c45caf12c87f166'
 session_name = 'userbot_earn_session'
 
 # === PRE-ADD GROUPS ===
